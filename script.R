@@ -118,3 +118,149 @@ se1 <- se0 * correct
 
 qt(0.025, 80 - 1, lower.tail = FALSE)
 qt(0.975, 80 - 1)
+
+
+data04 <- read.csv("causality-main/data04.csv")
+summary(data04)
+n1 <- nrow(data04)
+diff <- data04$y1t - data04$y0t
+m1 <- mean(diff)
+s1 <- sd(diff)
+talpha <- qt(0.025, n1 - 1, lower.tail = FALSE)
+m1 + talpha * s1 / sqrt(n1)
+m1 - talpha * s1 / sqrt(n1)
+t.test(diff)
+
+y0obs <- na.omit(data04$y0)
+y1obs <- na.omit(data04$y1)
+n0 <- length(y0obs)
+n1 <- length(y1obs)
+s0 <- sd(y0obs)
+s1 <- sd(y1obs)
+num <- (s1^2/n1 + s0^2/n0)^2
+denom <- ((s1^2/n1)^2)/(n1-1) + ((s0^2/n0)^2)/(n0-1)
+df1 <- num / denom
+xbar <- mean(y1obs) - mean(y0obs)
+se1 <- sqrt((s1^2/n1) + (s0^2/n0))
+talpha <- qt(0.025, df1, lower.tail = F)
+xbar + talpha * se1
+xbar - talpha * se1
+t.test(y1obs, y0obs, var.equal = FALSE)
+
+
+# section5 ----------------------------------------------------------------
+
+rm(list = ls())
+y1 <- c(40, 20, 50, 10)
+x1 <- c(5, 1, 3, 2)
+yhat1 <- 11.143 + 6.857 * x1
+e1 <- y1 - yhat1
+yhat2 <- 10.909 * x1
+e2 <- y1 - yhat2
+sum(e1)
+sum(e2)
+e1b <- e1^2
+e2b <- e2^2
+sum(e1b)
+sum(e2b)
+
+xbar <- mean(x1)
+ybar <- mean(y1)
+hensax <- x1 - xbar
+hensay <- y1 - ybar
+hensaxy <- hensax * hensay
+num <- sum(hensaxy)
+hensax2 <- hensax^2
+denom <- sum(hensax2)
+b1 <- num / denom
+b0 <- ybar - b1 * xbar
+
+model1 <- lm(y1 ~ x1)
+summary(model1)
+b1b <- ybar / xbar
+
+rm(list = ls())
+y1 <- c(1, 2, 3, 4, 5, 6, 7, 8, 9)
+x1 <- c(1, 1, 1, 2, 2, 2, 3, 3, 3)
+mean(y1)
+model2 <- lm(y1 ~ x1)
+summary(model2)
+-1 + 3 * 1
+-1 + 3 * 2
+-1 + 3 * 3
+plot(x1, y1)
+abline(model2)
+
+rm(list = ls())
+x1 <- c(5, 1, 3, 2)
+y1 <- c(40, 20, 50, 10)
+model3 <- lm(y1 ~ x1)
+bOLS <- summary(model3)$coefficient[2, 1]
+ussOLS <- sum(resid(model3)^2)
+
+b1 <- NULL; uss <- NULL
+set.seed(1)
+for(i in 1:10000) {
+  a1 <- 11.14286
+  b1[i] <- runif(1, -50, 100)
+  yhat <- a1 + b1[i] * x1
+  uss[i] <- sum((y1 - yhat)^2)
+}
+
+summary(uss)
+plot(b1, uss, col = 7, cex = 0.1, pch = 20)
+abline(v = bOLS, lty = 2)
+abline(h = ussOLS)
+
+
+# section6 ----------------------------------------------------------------
+
+rm(list = ls())
+data06 <- read_csv("causality-main/data06.csv")
+data06
+n1 <- nrow(data06)
+
+hensa <- data06$y1 - mean(data06$y1)
+hensa2 <- hensa^2
+tss <- sum(hensa2)
+tss / (n1 - 1)
+var(data06$y1)
+
+model1 <- lm(data06$y1 ~ data06$x1)
+summary(model1)
+confint(model1, level = 0.95)
+yhat1 <- predict(model1)
+yhat2 <- (yhat1 - mean(data06$y1))^2
+ess <- sum(yhat2)
+e1 <- resid(model1)
+e2 <- e1^2
+uss <- sum(e2)
+1- uss / tss
+ls(summary(model1))
+summary(model1)$r.squared
+
+model1 <- lm(data06$x1 ~ data06$x2)
+ex1 <- resid(model1)
+model2 <- lm(data06$y1 ~ ex1)
+model3 <- lm(data06$y1 ~ data06$x1 + data06$x2)
+summary(model2)
+summary(model3)
+confint(model3, level = 0.95)
+
+rm(list = ls())
+data03 <- read_csv("causality-main/data03.csv")
+model1 <- lm(t1 ~ x1, data = data03)
+et1 <- resid(model1)
+model2 <- lm(y3 ~ et1, data = data03)
+summary(model2)
+lm(y3 ~ x1 + t1, data = data03)
+
+
+
+
+
+
+
+
+
+
